@@ -11,7 +11,7 @@ namespace Pr0MinerSharp.Utils
 {
     public static class XHandleExt
     {
-        private const string rndId = "479e24d4-e672-4527-9fb7-49b595099a53";
+        private const string RndId = "479e24d4-e672-4527-9fb7-49b595099a53";
 
         public static void Handle(this XLoginObject input, XConnectionInfo cInfo)
         {
@@ -27,12 +27,12 @@ namespace Pr0MinerSharp.Utils
             {
                 result = new
                 {
-                    id = rndId,
+                    id = RndId,
                     job = new
                     {
                         lnj.blob,
                         lnj.job_id,
-                        id = rndId,
+                        id = RndId,
                         lnj.target
                     },
                     status = "OK"
@@ -42,7 +42,7 @@ namespace Pr0MinerSharp.Utils
                 jsonrpc = "2.0"
             });
 
-            Pr0Main.OnNewJob += x => cInfo.Send(new { method = "job", jsonrpc = "2.0", @params = new { x.blob, x.job_id, x.target, id = rndId } });
+            Pr0Main.OnNewJob += x => cInfo.Send(new { method = "job", jsonrpc = "2.0", @params = new { x.blob, x.job_id, x.target, id = RndId } });
             Console.WriteLine($"New login ({input.login}/{input.agent})");
         }
 
