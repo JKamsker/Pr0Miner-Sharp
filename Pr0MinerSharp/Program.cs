@@ -1,15 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
+using WebSocketSharp;
+using Newtonsoft.Json;
+using Pr0MinerSharp.Pr0Handler;
+using Pr0MinerSharp.Utils;
 
 namespace Pr0MinerSharp
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static Uri _minerEp = new Uri("ws://miner.pr0gramm.com:8044");
+
+        private static void Main(string[] args)
         {
+            XMRHandler.XMain.Init();
+
+            Console.WriteLine("Proxy Online!");
+            Console.WriteLine("Enter 'exit' to escape");
+
+            while (Console.ReadLine() != "exit") { }
         }
     }
 }
