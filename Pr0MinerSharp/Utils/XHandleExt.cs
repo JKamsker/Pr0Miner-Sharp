@@ -23,15 +23,25 @@ namespace Pr0MinerSharp.Utils
             }
             cInfo.Pr0User = input.login;
             // cInfo.Pr0Handler = new Pr0Main(x => SendLoginResponse(x, cInfo));
-            if (Pr0Main.JobQueue.Any())
+            SendLoginResponse(Pr0Main.LastNewJob, cInfo);
+
+            Pr0Main.OnNewJob += x => cInfo.Send(new
             {
-                SendLoginResponse(Pr0Main.JobQueue.Dequeue(), cInfo);
-            }
-            else
-            {
-                Console.WriteLine("ERROR! No Job in queue!!");
-                cInfo.Dispose();
-            }
+                method = "job",
+                jsonrpc = "2.0",
+                @params = new { x.blob, x.job_id, x.target, id = rndId }
+            });
+
+            //if (Pr0Main.JobQueue.Any())
+            //{
+            //    SendLoginResponse(Pr0Main.JobQueue.Dequeue(), cInfo);
+            //    Pr0Main.SaveJobQueue();
+            //}
+            //else
+            //{
+            //    Console.WriteLine("ERROR! No Job in queue!!");
+            //    cInfo.Dispose();
+            //}
 
             Console.WriteLine($"New login ({input.login}/{input.agent})");
         }
@@ -108,14 +118,14 @@ namespace Pr0MinerSharp.Utils
 
         public static void Send(this ConnectionInfo cInfo, object toSend)
         {
-            if (cInfo?.Socket?.Connected ?? false)
+            if (cInfo?.Socket == null || !cInfo.Socket.Connected)
             {
-                var respBytes = (JsonConvert.SerializeObject(toSend) + "\n").GetBytes();
-                cInfo.Socket.BeginSend(respBytes, 0, respBytes.Length, SocketFlags.None, null, null);
+                cInfo?.Dispose();
             }
             else
             {
-                cInfo?.Dispose();
+                var respBytes = (JsonConvert.SerializeObject(toSend) + "\n").GetBytes();
+                cInfo.Socket.BeginSend(respBytes, 0, respBytes.Length, SocketFlags.None, null, null);
             }
         }
     }
