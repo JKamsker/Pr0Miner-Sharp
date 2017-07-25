@@ -9,6 +9,8 @@ namespace Pr0MinerSharp.DataTypes
 
         public byte[] Buffer = new byte[1024 * 4];
 
+        public string LastJobId { get; set; }
+
         public string Pr0User
         {
             get => String.IsNullOrEmpty(_pr0User) ? "WeLoveBurgers" : _pr0User;

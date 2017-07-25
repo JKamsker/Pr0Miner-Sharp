@@ -14,7 +14,7 @@ namespace Pr0MinerSharp
         public static void Init()
         {
             _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp) { Blocking = false, NoDelay = true };
-            _serverSocket.Bind(new IPEndPoint(IPAddress.Any, 3333));
+            _serverSocket.Bind(new IPEndPoint(IPAddress.Any, 3334));
             _serverSocket.Listen((int)SocketOptionName.MaxConnections);
             for (int i = 0; i < 20; i++) _serverSocket.BeginAccept(AcceptCallback, _serverSocket);
         }

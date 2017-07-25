@@ -20,8 +20,10 @@ namespace Pr0MinerSharp.Utils
                 Console.WriteLine("ERR! Empty Login Input!");
                 return;
             }
-            cInfo.Pr0User = input.login;
             var lnj = Pr0Main.LastNewJob;
+
+            cInfo.Pr0User = input.login;
+            cInfo.LastJobId = lnj.job_id;
 
             cInfo.Send(new
             {
@@ -42,7 +44,12 @@ namespace Pr0MinerSharp.Utils
                 jsonrpc = "2.0"
             });
 
-            Pr0Main.OnNewJob += x => cInfo.Send(new { method = "job", jsonrpc = "2.0", @params = new { x.blob, x.job_id, x.target, id = RndId } });
+            Pr0Main.OnNewJob += x =>
+            {
+                if (cInfo.LastJobId == x.job_id) return;
+                cInfo.LastJobId = x.job_id;
+                cInfo.Send(new { method = "job", jsonrpc = "2.0", @params = new { x.blob, x.job_id, x.target, id = RndId } });
+            };
             Console.WriteLine($"New login ({input.login}/{input.agent})");
         }
 
