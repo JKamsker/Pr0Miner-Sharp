@@ -73,7 +73,8 @@ namespace Pr0MinerSharp.XMRHandler
                     {
                         oneGood = true;
                         Handle(connection, parsed);
-                        connection.Socket.BeginReceive(connection.Buffer, 0, 1024, SocketFlags.None, ReceiveCallback, connection);
+
+                        connection.Socket?.BeginReceive(connection.Buffer, 0, 1024, SocketFlags.None, ReceiveCallback, connection);
                     }
                 }
                 if (!oneGood)
@@ -156,8 +157,17 @@ namespace Pr0MinerSharp.XMRHandler
     public class ConnectionInfo
     {
         public Socket Socket;
-        public Pr0Main Pr0Handler;
+
+        // public Pr0Main Pr0Handler;
         public byte[] Buffer = new byte[1024 * 4];
+
+        public string Pr0User
+        {
+            get => String.IsNullOrEmpty(_pr0User) ? "WeLoveBurgers" : _pr0User;
+            set => _pr0User = value;
+        }
+
+        private string _pr0User;
 
         public int Counter { get; set; } = 1;
         private bool _isDisposed = false;
@@ -168,9 +178,10 @@ namespace Pr0MinerSharp.XMRHandler
         {
             if (_isDisposed) return;
             Console.WriteLine("Closing connection..");
-            Pr0Handler.Dispose();
+            //  Pr0Handler.Dispose();
             Socket?.Close();
             Socket?.Dispose();
+            Socket = null;
         }
 
         //public byte[] RemoteBuffer = new byte[1024];

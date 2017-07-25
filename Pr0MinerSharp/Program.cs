@@ -18,6 +18,7 @@ namespace Pr0MinerSharp
 
         private static void Main(string[] args)
         {
+            Pr0Main.Init();
             XMRHandler.XMain.Init();
 
             Console.WriteLine("Proxy Online!");
