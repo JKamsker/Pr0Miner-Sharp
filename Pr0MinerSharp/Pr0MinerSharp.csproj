@@ -47,21 +47,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Pr0Handler\NewJob.cs" />
-    <Compile Include="Pr0Handler\PoolStats.cs" />
-    <Compile Include="Pr0Handler\Pr0Main.cs" />
-    <Compile Include="Pr0Handler\Toplist.cs" />
+    <Compile Include="DataTypes\JobAccepted.cs" />
+    <Compile Include="DataTypes\NewJob.cs" />
+    <Compile Include="DataTypes\PoolStats.cs" />
+    <Compile Include="Pr0Main.cs" />
+    <Compile Include="DataTypes\Toplist.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\Json.cs" />
     <Compile Include="Utils\StringExt.cs" />
     <Compile Include="Utils\XHandleExt.cs" />
-    <Compile Include="XMRHandler\XMain.cs" />
-    <Compile Include="XMRHandler\Job.cs" />
+    <Compile Include="DataTypes\XConnectionInfo.cs" />
+    <Compile Include="DataTypes\XLoginObject.cs" />
+    <Compile Include="XMain.cs" />
+    <Compile Include="DataTypes\XResultObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

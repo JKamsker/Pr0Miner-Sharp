@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Pr0MinerSharp.Pr0Handler
+namespace Pr0MinerSharp.DataTypes
 {
     public class PoolStats
     {

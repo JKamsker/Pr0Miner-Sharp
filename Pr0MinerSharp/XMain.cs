@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using Pr0MinerSharp.Pr0Handler;
+using Pr0MinerSharp.DataTypes;
 using Pr0MinerSharp.Utils;
 
-namespace Pr0MinerSharp.XMRHandler
+namespace Pr0MinerSharp
 {
     internal class XMain
     {
@@ -28,7 +22,7 @@ namespace Pr0MinerSharp.XMRHandler
         private static void AcceptCallback(IAsyncResult ar)
         {
             Console.WriteLine("New connection");
-            var connection = new ConnectionInfo();
+            var connection = new XConnectionInfo();
             try
             {
                 var state = ar.AsyncState as Socket;
@@ -53,18 +47,12 @@ namespace Pr0MinerSharp.XMRHandler
 
         private static void ReceiveCallback(IAsyncResult ar)
         {
-            // Console.WriteLine("Received smth");
-            ConnectionInfo connection = (ConnectionInfo)ar.AsyncState;
+            XConnectionInfo connection = (XConnectionInfo)ar.AsyncState;
             try
             {
                 int bytesRead = connection.Socket.EndReceive(ar);
                 if (bytesRead == 0) return;
-                //byte[] newByte = new byte[bytesRead];
-                //Array.Copy(connection.Buffer, 0, newByte, 0, bytesRead);
 
-                //String method = json.getString("method");
-                //JSONObject params = json.getJSONObject("params");
-                //int id = json.getInt("id");
                 bool oneGood = false;
                 var str = connection.Buffer.GetString(0, bytesRead).Split('\n');
                 foreach (var s in str)
@@ -92,15 +80,12 @@ namespace Pr0MinerSharp.XMRHandler
             }
         }
 
-        public static void Handle(ConnectionInfo cInfo, JObject desObj)
+        public static void Handle(XConnectionInfo cInfo, JObject desObj)
         {
             switch (desObj["method"].ToString())
             {
                 case "login":
                     desObj["params"].ToObject<XLoginObject>().Handle(cInfo);
-                    //var lObj = desObj["params"].ToObject<XLoginObject>();
-                    //Handle(cInfo, lObj);
-
                     break;
 
                 case "submit":
@@ -113,11 +98,7 @@ namespace Pr0MinerSharp.XMRHandler
             }
         }
 
-        public static void Handle(ConnectionInfo cInfo, XLoginObject input)
-        {
-        }
-
-        public static void CloseConnection(ConnectionInfo session)
+        public static void CloseConnection(XConnectionInfo session)
         {
             if (session == null) return;
             try
@@ -137,53 +118,5 @@ namespace Pr0MinerSharp.XMRHandler
                 Console.WriteLine("Couldn't safely close socket" + e);
             }
         }
-    }
-
-    public class XLoginObject
-    {
-        public string login { get; set; }
-        public string pass { get; set; }
-        public string agent { get; set; }
-    }
-
-    public class XResultObject
-    {
-        public string id { get; set; }
-        public string job_id { get; set; }
-        public string nonce { get; set; }
-        public string result { get; set; }
-    }
-
-    public class ConnectionInfo
-    {
-        public Socket Socket;
-
-        // public Pr0Main Pr0Handler;
-        public byte[] Buffer = new byte[1024 * 4];
-
-        public string Pr0User
-        {
-            get => String.IsNullOrEmpty(_pr0User) ? "WeLoveBurgers" : _pr0User;
-            set => _pr0User = value;
-        }
-
-        private string _pr0User;
-
-        public int Counter { get; set; } = 1;
-        private bool _isDisposed = false;
-
-        public bool LoginCompleted = false;
-
-        public void Dispose()
-        {
-            if (_isDisposed) return;
-            Console.WriteLine("Closing connection..");
-            //  Pr0Handler.Dispose();
-            Socket?.Close();
-            Socket?.Dispose();
-            Socket = null;
-        }
-
-        //public byte[] RemoteBuffer = new byte[1024];
     }
 }

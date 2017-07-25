@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Threading;
 using WebSocketSharp;
 using Newtonsoft.Json;
-using Pr0MinerSharp.Pr0Handler;
 using Pr0MinerSharp.Utils;
 
 namespace Pr0MinerSharp
@@ -19,7 +18,7 @@ namespace Pr0MinerSharp
         private static void Main(string[] args)
         {
             Pr0Main.Init();
-            XMRHandler.XMain.Init();
+            XMain.Init();
 
             Console.WriteLine("Proxy Online!");
             Console.WriteLine("Enter 'exit' to escape");
