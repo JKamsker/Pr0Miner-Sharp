@@ -55,9 +55,10 @@ namespace Pr0MinerSharp
 
                 bool oneGood = false;
                 var str = connection.Buffer.GetString(0, bytesRead).Split('\n');
+                Newtonsoft.Json.Linq.JObject parsed;
                 foreach (var s in str)
                 {
-                    if (XJson.TryParseJson(s, out var parsed))
+                    if (XJson.TryParseJson(s, out parsed))
                     {
                         oneGood = true;
                         Handle(connection, parsed);
