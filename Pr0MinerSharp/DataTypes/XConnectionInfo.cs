@@ -13,8 +13,9 @@ namespace Pr0MinerSharp.DataTypes
 
         public string Pr0User
         {
-            get => String.IsNullOrEmpty(_pr0User) ? "WeLoveBurgers" : _pr0User;
-            set => _pr0User = value;
+                get { return string.IsNullOrEmpty(_pr0User) ? "WeLoveBurgers" : _pr0User; }
+                set { this._pr0User = value;  }
+            
         }
 
         private string _pr0User;
