@@ -13,9 +13,8 @@ namespace Pr0MinerSharp.DataTypes
 
         public string Pr0User
         {
-                get { return string.IsNullOrEmpty(_pr0User) ? "WeLoveBurgers" : _pr0User; }
-                set { this._pr0User = value;  }
-            
+            get { return string.IsNullOrEmpty(_pr0User) ? "WeLoveBurgers" : _pr0User; }
+            set { this._pr0User = value; }
         }
 
         private string _pr0User;
@@ -29,9 +28,18 @@ namespace Pr0MinerSharp.DataTypes
         {
             if (_isDisposed) return;
             Console.WriteLine("Closing connection..");
-            Socket?.Close();
-            Socket?.Dispose();
-            Socket = null;
+            try
+            {
+                Socket?.Close();
+                Socket?.Dispose();
+                Socket = null;
+                Pr0Main.ConnectedEndPoints.Remove(this);
+            }
+            catch (Exception)
+            {
+            }
+
+            _isDisposed = true;
         }
     }
 }

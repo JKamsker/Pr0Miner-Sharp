@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Pr0MinerSharp.Utils
 {
-    public class XJson
+    public class JsonValidator
     {
         public static bool TryParseJson(string strInput, out JObject value)
         {
@@ -29,25 +29,5 @@ namespace Pr0MinerSharp.Utils
             value = default(JObject);
             return false;
         }
-
-        /*public static bool TryParseJson<T>(string strInput, out T value)
-        {
-            if ((strInput.StartsWith("{") && strInput.EndsWith("}")) ||
-                (strInput.StartsWith("[") && strInput.EndsWith("]")))
-            {
-                try
-                {
-                    value = JsonConvert.DeserializeObject<T>(strInput);
-                    return true;
-                }
-                catch
-                {
-                    // ignored
-                }
-            }
-
-            value = default(T);
-            return false;
-        }*/
     }
 }

@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Newtonsoft.Json;
 using Pr0MinerSharp.DataTypes;
+using Pr0MinerSharp.Utils;
 using WebSocketSharp;
 
 namespace Pr0MinerSharp
@@ -14,6 +18,8 @@ namespace Pr0MinerSharp
         public static NewJob LastNewJob;
 
         private static WebSocket _ws;
+
+        public static List<XConnectionInfo> ConnectedEndPoints = new List<XConnectionInfo>();
 
         public static void Init()
         {
@@ -55,7 +61,7 @@ namespace Pr0MinerSharp
                 Reconnect();
             }
 
-            if (_ws != null && _ws.IsAlive)
+            if (_ws?.IsAlive ?? false)
             {
                 lock (_ws)
                     _ws.SendAsync(toSend, null);
@@ -92,7 +98,14 @@ namespace Pr0MinerSharp
                 case "job":
                     var jObject = erg["params"].ToObject<NewJob>();
                     LastNewJob = jObject;
-                    OnNewJob?.Invoke(jObject);
+                    // OnNewJob?.Invoke(jObject);
+
+                    foreach (var cInfo in ConnectedEndPoints.Where(m => m != null && m.Socket.Connected))
+                    {
+                        if (cInfo.LastJobId == jObject.job_id) return;
+                        cInfo.LastJobId = jObject.job_id;
+                        cInfo.Send(new { method = "job", jsonrpc = "2.0", @params = new { jObject.blob, jObject.job_id, jObject.target, id = XHandleExt.RndId } });
+                    }
 
                     Console.WriteLine($"NewJob - {jObject.job_id} ");
                     break;

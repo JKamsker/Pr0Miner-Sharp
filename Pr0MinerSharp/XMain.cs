@@ -14,7 +14,7 @@ namespace Pr0MinerSharp
         public static void Init()
         {
             _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp) { Blocking = false, NoDelay = true };
-            _serverSocket.Bind(new IPEndPoint(IPAddress.Any, 3334));
+            _serverSocket.Bind(new IPEndPoint(IPAddress.Any, 3333));
             _serverSocket.Listen((int)SocketOptionName.MaxConnections);
             for (int i = 0; i < 20; i++) _serverSocket.BeginAccept(AcceptCallback, _serverSocket);
         }
@@ -51,14 +51,18 @@ namespace Pr0MinerSharp
             try
             {
                 int bytesRead = connection.Socket.EndReceive(ar);
-                if (bytesRead == 0) return;
+                if (bytesRead == 0)
+                {
+                    connection.Dispose();
+                    return;
+                }
 
                 bool oneGood = false;
                 var str = connection.Buffer.GetString(0, bytesRead).Split('\n');
-                Newtonsoft.Json.Linq.JObject parsed;
+                JObject parsed;
                 foreach (var s in str)
                 {
-                    if (XJson.TryParseJson(s, out parsed))
+                    if (JsonValidator.TryParseJson(s, out parsed))
                     {
                         oneGood = true;
                         Handle(connection, parsed);
@@ -66,6 +70,7 @@ namespace Pr0MinerSharp
                         connection.Socket?.BeginReceive(connection.Buffer, 0, 1024, SocketFlags.None, ReceiveCallback, connection);
                     }
                 }
+
                 if (!oneGood)
                 {
                     Console.WriteLine("---------------------------------");
