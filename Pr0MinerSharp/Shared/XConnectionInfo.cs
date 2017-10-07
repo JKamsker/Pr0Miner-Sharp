@@ -1,13 +1,13 @@
 using System;
 using System.Net.Sockets;
 
-namespace Pr0MinerSharp.DataTypes
+namespace Pr0MinerSharp.Shared
 {
     public class ConnectionInfo
     {
         public Socket Socket;
 
-        public byte[] Buffer = new byte[1024 * 4];
+        public byte[] Buffer = new byte[4 * 1024];
 
         public string LastJobId { get; set; }
 
@@ -33,7 +33,6 @@ namespace Pr0MinerSharp.DataTypes
                 Socket?.Close();
                 Socket?.Dispose();
                 Socket = null;
-                //Pr0Main.ConnectedEndPoints.Remove(this);
             }
             catch (Exception)
             {

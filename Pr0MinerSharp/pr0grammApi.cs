@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Pr0MinerSharp.DataTypes;
+using Pr0MinerSharp.Shared;
 using Pr0MinerSharp.Utils;
 using WebSocketSharp;
 

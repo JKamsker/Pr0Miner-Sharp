@@ -1,4 +1,4 @@
-namespace Pr0MinerSharp.DataTypes
+namespace Pr0MinerSharp.Shared
 {
     public class XResultObject
     {

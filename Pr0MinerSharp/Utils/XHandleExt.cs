@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Pr0MinerSharp.DataTypes;
+using Pr0MinerSharp.Shared;
 
 namespace Pr0MinerSharp.Utils
 {

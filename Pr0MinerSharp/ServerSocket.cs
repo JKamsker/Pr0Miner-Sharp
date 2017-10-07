@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using Newtonsoft.Json.Linq;
-using Pr0MinerSharp.DataTypes;
+using Pr0MinerSharp.Shared;
 using Pr0MinerSharp.Utils;
 
 namespace Pr0MinerSharp
