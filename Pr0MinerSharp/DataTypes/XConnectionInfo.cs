@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace Pr0MinerSharp.DataTypes
 {
-    public class XConnectionInfo
+    public class ConnectionInfo
     {
         public Socket Socket;
 
@@ -33,7 +33,7 @@ namespace Pr0MinerSharp.DataTypes
                 Socket?.Close();
                 Socket?.Dispose();
                 Socket = null;
-                Pr0Main.ConnectedEndPoints.Remove(this);
+                //Pr0Main.ConnectedEndPoints.Remove(this);
             }
             catch (Exception)
             {

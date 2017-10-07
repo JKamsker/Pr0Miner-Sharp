@@ -50,7 +50,7 @@
     <Compile Include="DataTypes\JobAccepted.cs" />
     <Compile Include="DataTypes\NewJob.cs" />
     <Compile Include="DataTypes\PoolStats.cs" />
-    <Compile Include="Pr0Main.cs" />
+    <Compile Include="Pr0GrammApi.cs" />
     <Compile Include="DataTypes\Toplist.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -59,7 +59,7 @@
     <Compile Include="Utils\XHandleExt.cs" />
     <Compile Include="DataTypes\XConnectionInfo.cs" />
     <Compile Include="DataTypes\XLoginObject.cs" />
-    <Compile Include="XMain.cs" />
+    <Compile Include="ServerSocket.cs" />
     <Compile Include="DataTypes\XResultObject.cs" />
   </ItemGroup>
   <ItemGroup>

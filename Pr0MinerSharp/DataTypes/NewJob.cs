@@ -1,6 +1,6 @@
 ﻿namespace Pr0MinerSharp.DataTypes
 {
-    public class NewJob
+    public class Job
     {
         public string job_id { get; set; }
         public string blob { get; set; }

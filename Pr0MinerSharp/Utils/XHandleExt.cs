@@ -13,62 +13,7 @@ namespace Pr0MinerSharp.Utils
     {
         public const string RndId = "479e24d4-e672-4527-9fb7-49b595099a53";
 
-        public static void Handle(this XLoginObject input, XConnectionInfo cInfo)
-        {
-            if (input == null)
-            {
-                Console.WriteLine("ERR! Empty Login Input!");
-                return;
-            }
-            var lnj = Pr0Main.LastNewJob;
-
-            cInfo.Pr0User = input.login;
-            cInfo.LastJobId = lnj.job_id;
-
-            cInfo.Send(new
-            {
-                result = new
-                {
-                    id = RndId,
-                    job = new
-                    {
-                        lnj.blob,
-                        lnj.job_id,
-                        id = RndId,
-                        lnj.target
-                    },
-                    status = "OK"
-                },
-                id = cInfo.Counter++,
-                error = (string)null,
-                jsonrpc = "2.0"
-            });
-
-            Pr0Main.ConnectedEndPoints.Add(cInfo);
-
-            //Pr0Main.OnNewJob += x =>
-            //{
-            //    //if (cInfo.LastJobId == x.job_id) return;
-            //    //cInfo.LastJobId = x.job_id;
-            //    //cInfo.Send(new { method = "job", jsonrpc = "2.0", @params = new { x.blob, x.job_id, x.target, id = RndId } });
-            //};
-
-            Console.WriteLine($"New login ({input.login}/{input.agent})");
-        }
-
-        public static void Handle(this XResultObject input, XConnectionInfo cInfo)
-        {
-            if (input == null)
-            {
-                Console.WriteLine("ERR! Empty Result Input!");
-                return;
-            }
-            cInfo.Send(new { result = new { status = "OK" }, id = cInfo.Counter++, jsonrpc = "2.0" });
-
-            Pr0Main.Send(new { type = "submit", @params = new { user = cInfo.Pr0User, input.job_id, input.nonce, input.result } });
-        }
-
-        public static void Send(this XConnectionInfo cInfo, object toSend)
+        public static void Send(this ConnectionInfo cInfo, object toSend)
         {
             if (cInfo?.Socket == null || !cInfo.Socket.Connected)
             {
@@ -80,40 +25,37 @@ namespace Pr0MinerSharp.Utils
                 cInfo.Socket.BeginSend(respBytes, 0, respBytes.Length, SocketFlags.None, null, null);
             }
         }
+
+        public static void Send(this ConnectionInfo cInfo, Job job)
+        {
+            if (cInfo.LastJobId == job.job_id) return;
+            cInfo.LastJobId = job.job_id;
+
+            var cJObj = new
+            {
+                method = "job",
+                jsonrpc = "2.0",
+                @params = new { job.blob, job.job_id, job.target, id = XHandleExt.RndId }
+            };
+
+            cInfo.Send(cJObj);
+        }
+
+        public static void Send(this IEnumerable<ConnectionInfo> cInfos, Job job)
+        {
+            var cJObj = new
+            {
+                method = "job",
+                jsonrpc = "2.0",
+                @params = new { job.blob, job.job_id, job.target, id = XHandleExt.RndId }
+            };
+
+            foreach (var cInfo in cInfos)
+            {
+                if (cInfo.LastJobId == job.job_id) continue;
+                cInfo.LastJobId = job.job_id;
+                cInfo.Send(cJObj);
+            }
+        }
     }
 }
-
-/* Loginresponse...
-          if (cInfo.LoginCompleted)
-          {
-              Console.WriteLine("Relaying new job...");
-              cInfo.Send(new
-              {
-                  method = "job",
-                  jsonrpc = "2.0",
-                  @params = new { x.blob, x.job_id, x.target, id = rndId }
-              });
-          }
-          else
-          {
-              cInfo.LoginCompleted = true;
-              cInfo.Send(new
-              {
-                  result = new
-                  {
-                      id = rndId,
-                      job = new
-                      {
-                          x.blob,
-                          x.job_id,
-                          id = rndId,
-                          x.target
-                      },
-                      status = "OK"
-                  },
-                  id = cInfo.Counter++,
-                  error = (string)null,
-                  jsonrpc = "2.0"
-              });
-          }
-           */
