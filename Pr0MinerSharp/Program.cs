@@ -18,6 +18,7 @@ namespace Pr0MinerSharp
         private static void Main(string[] args)
         {
             var xm = new Pr0xyServerSocket();
+            xm.Start();
 
             Console.WriteLine("Proxy Online!");
             Console.WriteLine("Enter 'exit' to escape");

@@ -25,9 +25,7 @@ namespace Pr0MinerSharp
 
         public void Start()
         {
-            _ws = new WebSocket("ws://miner.pr0gramm.com:8044");
-            _ws.OnMessage += Ws_OnMessage;
-            _ws.Connect();
+            Reconnect();
         }
 
         public bool Send(object toSend)
@@ -54,15 +52,17 @@ namespace Pr0MinerSharp
 
         public void Reconnect()
         {
-            Console.WriteLine("Trying ws reconnect");
             if (_ws != null)
             {
+                Console.WriteLine("Trying ws reconnect");
                 _ws.OnMessage -= Ws_OnMessage;
                 _ws.Close();
+                _ws = null;
             }
 
             _ws = new WebSocket("ws://miner.pr0gramm.com:8044");
             _ws.OnMessage += Ws_OnMessage;
+            _ws.OnError += (_, __) => Reconnect();
             _ws.Connect();
         }
 

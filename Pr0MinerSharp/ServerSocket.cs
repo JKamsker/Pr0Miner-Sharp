@@ -34,7 +34,7 @@ namespace Pr0MinerSharp
             _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp) { Blocking = false, NoDelay = true };
             _serverSocket.Bind(new IPEndPoint(IPAddress.Any, 3333));
             _serverSocket.Listen((int)SocketOptionName.MaxConnections);
-            for (int i = 0; i < 20; i++) _serverSocket.BeginAccept(AcceptCallback, _serverSocket);
+            for (var i = 0; i < 20; i++) _serverSocket.BeginAccept(AcceptCallback, _serverSocket);
         }
 
         private void AcceptCallback(IAsyncResult ar)
@@ -43,8 +43,7 @@ namespace Pr0MinerSharp
             var cInfo = new ConnectionInfo();
             try
             {
-                var state = ar.AsyncState as Socket;
-                if (state != null)
+                if (ar.AsyncState is Socket state)
                 {
                     ConnectedEndpoints.Add(cInfo);
 
@@ -67,42 +66,44 @@ namespace Pr0MinerSharp
 
         private void ReceiveCallback(IAsyncResult ar)
         {
-            ConnectionInfo connection = (ConnectionInfo)ar.AsyncState;
-            try
+            var connection = (ConnectionInfo)ar.AsyncState;
+            lock (connection.LockObject)
             {
-                int bytesRead = connection.Socket.EndReceive(ar);
-                if (bytesRead == 0)
+                try
                 {
-                    connection.Dispose();
-                    return;
-                }
-
-                bool oneGood = false;
-                var str = connection.Buffer.GetString(0, bytesRead).Split('\n');
-                JObject parsed;
-                foreach (var s in str)
-                {
-                    if (JsonValidator.TryParseJson(s, out parsed))
+                    var bytesRead = connection.Socket.EndReceive(ar);
+                    if (bytesRead == 0)
                     {
-                        oneGood = true;
-                        Handle(connection, parsed);
+                        connection.Dispose();
+                        return;
+                    }
 
-                        connection.Socket?.BeginReceive(connection.Buffer, 0, 1024, SocketFlags.None, ReceiveCallback, connection);
+                    var oneGood = false;
+                    var receivedQuery = connection.Buffer.GetString(0, bytesRead).Split('\n');
+                    foreach (var s in receivedQuery)
+                    {
+                        if (JsonValidator.TryParseJson(s, out var parsed))
+                        {
+                            oneGood = true;
+                            Handle(connection, parsed);
+
+                            connection.Socket?.BeginReceive(connection.Buffer, 0, connection.Buffer.Length, SocketFlags.None, ReceiveCallback, connection);
+                        }
+                    }
+
+                    if (!oneGood)
+                    {
+                        Console.WriteLine("---------------------------------");
+                        Console.WriteLine("Can't handle Json");
+                        Console.WriteLine(string.Join("\n", receivedQuery));
+                        Console.WriteLine("---------------------------------");
+                        connection.Dispose();
                     }
                 }
-
-                if (!oneGood)
+                catch (Exception ex)
                 {
-                    Console.WriteLine("---------------------------------");
-                    Console.WriteLine("Can't handle Json");
-                    Console.WriteLine(string.Join("\n", str));
-                    Console.WriteLine("---------------------------------");
-                    connection.Dispose();
+                    Console.WriteLine(ex);
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
             }
         }
 
@@ -124,6 +125,8 @@ namespace Pr0MinerSharp
                     break;
             }
         }
+
+        private readonly object _lockObject = new object();
 
         private void DoLogin(ConnectionInfo cInfo, XLoginObject input)
         {
@@ -151,27 +154,37 @@ namespace Pr0MinerSharp
                 jsonrpc = "2.0"
             });
 
-            ConnectedEndpoints.Add(cInfo);
+            lock (_lockObject)
+            {
+                ConnectedEndpoints.Add(cInfo);
+            }
         }
 
         private void DoSubmit(ConnectionInfo cInfo, XResultObject resObject)
         {
-            cInfo.Send(new { result = new { status = "OK" }, id = cInfo.Counter++, jsonrpc = "2.0" });
+            lock (cInfo.LockObject)
+            {
+                cInfo.Send(new { result = new { status = "OK" }, id = cInfo.Counter++, jsonrpc = "2.0" });
+            }
+
             _api.Send(new { type = "submit", @params = new { user = cInfo.Pr0User, resObject.job_id, resObject.nonce, resObject.result } });
         }
 
         public void OnNewJob(Job job)
         {
-            ConnectedEndpoints.Where(m => m != null && m.Socket.Connected && m.LastJobId != job.job_id).Send(job);
+            lock (_lockObject)
+            {
+                ConnectedEndpoints.Where(m => m != null && m.Socket.Connected && m.LastJobId != job.job_id).Send(job);
+            }
         }
 
         public void CloseConnection(ConnectionInfo session)
         {
-            if (session == null) return;
-            ConnectedEndpoints.Remove(session);
-            try
+            lock (_lockObject)
             {
-                lock (session)
+                if (session == null) return;
+                ConnectedEndpoints.Remove(session);
+                try
                 {
                     if (session.Socket?.Connected == true)
                     {
@@ -180,10 +193,10 @@ namespace Pr0MinerSharp
                         session.Socket = null;
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Couldn't safely close socket" + e);
+                catch (Exception e)
+                {
+                    Console.WriteLine("Couldn't safely close socket" + e);
+                }
             }
         }
     }
